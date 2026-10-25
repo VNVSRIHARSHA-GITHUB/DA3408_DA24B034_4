@@ -11,7 +11,7 @@
    - **Impact:** Helped me understand how the monitoring pipeline fits together and how to read and verify the metrics.
 
 2. **Code and Configuration Generation**
-   - some part of PromQL generated with AI is attributed with the prompts used in [`Ai_prompt_usage.md`](Ai_prompt_usage.md), as required .
+   - some part of PromQL generated with AI is attributed with the prompts used in [`AI_prompt_usage.md`](AI_prompt_usage.md), as required .
    - **Impact:** Sped up the process , so more time went into testing, collecting evidence and verifying the metrics.
 
 3. **Debugging and Troubleshooting**

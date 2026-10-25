@@ -1,5 +1,5 @@
 # Recording rules and alert rules for the captioning app.
-# some part of PromQL in this file is AI-assisted; the prompt for each expression is listed in Ai_prompt_usage.md. The logic is calculated by hand in METRICS.md.
+# some part of PromQL in this file is AI-assisted; the prompt for each expression is listed in AI_prompt_usage.md. The logic is calculated by hand in METRICS.md.
 
 groups:
   - name: recording-rules

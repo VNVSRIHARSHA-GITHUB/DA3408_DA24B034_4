@@ -12,7 +12,7 @@ CPU-only image captioning app (Streamlit + BLIP) instrumented with `prometheus_c
 DA3408_DA24B034_4/
 ├── README.md
 ├── METRICS.md                    # Every metric + PromQL, with hand calculations
-├── Ai_prompt_usage.md            # Prompts used for AI-generated PromQL
+├── AI_prompt_usage.md            # Prompts used for AI-generated PromQL
 ├── ai_usage.md                   # AI usage disclosure
 ├── requirements.txt              # Pinned Python dependencies (CPU-only torch)
 ├── .streamlit/config.toml        # Headless mode, 50 MB upload limit
@@ -140,4 +140,4 @@ cd monitoring && docker compose down
 
 ## AI Usage Disclosure
 
-See [`ai_usage.md`](ai_usage.md) for how AI tools were used. The prompts for AI-generated PromQL are listed in [`Ai_prompt_usage.md`](Ai_prompt_usage.md), and the logic of every query is calculated by hand in [`METRICS.md`](METRICS.md).
+See [`ai_usage.md`](ai_usage.md) for how AI tools were used. The prompts for AI-generated PromQL are listed in [`AI_prompt_usage.md`](AI_prompt_usage.md), and the logic of every query is calculated by hand in [`METRICS.md`](METRICS.md).
