@@ -1,9 +1,7 @@
 # AI prompt usage (PromQL attribution)
 
-This file answers the course's **"Black Box" Metric Rule**: AI may be used to generate PromQL, but every AI-generated query must be attributed with the prompt used.
-
-- The PromQL in `monitoring/prometheus/rules.yml` and in the Grafana dashboard (`monitoring/grafana/dashboards/caption_app.json`) was generated with AI assistance (Claude, Anthropic). Both files carry a comment pointing here.
-- Each row lists the query, where it is used, and the prompt it was generated from. Queries taken from the course sample files are marked as such.
+- The PromQL in `monitoring/prometheus/rules.yml` and in the Grafana dashboard (`monitoring/grafana/dashboards/caption_app.json`) was generated with AI assistance (Claude, Anthropic). rules.yml carry a comment pointing here.
+- Each row lists the query, where it is used, and the prompt it was generated from.
 - The **logic of every query is calculated by hand**, with real numbers from this app, in [`METRICS.md`](METRICS.md).
 
 ## 1. Prometheus rules (`monitoring/prometheus/rules.yml`)
