@@ -1,0 +1,6 @@
+[server]
+headless = true
+maxUploadSize = 50   # MB; matches MAX_UPLOAD_MB in app/bulk.py
+
+[browser]
+gatherUsageStats = false

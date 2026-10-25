@@ -1,0 +1,93 @@
+# Recording rules and alert rules for the captioning app.
+# some part of PromQL in this file is AI-assisted; the prompt for each expression is listed in Ai_prompt_usage.md. The logic is calculated by hand in METRICS.md.
+
+groups:
+  - name: recording-rules
+    rules:
+      
+      - record: cpu_util
+        expr: sum by (mode) (rate(node_cpu_seconds_total{mode=~"system|user"}[30s]))
+
+      - record: caption:inference_seconds:p95_1m
+        expr: histogram_quantile(0.95, sum by (le, mode) (rate(caption_inference_seconds_bucket[1m])))
+
+      - record: caption:inference_seconds:p50_1m
+        expr: histogram_quantile(0.50, sum by (le, mode) (rate(caption_inference_seconds_bucket[1m])))
+
+      - record: caption:images_processed:rate1m
+        expr: sum by (mode) (rate(caption_images_processed_total{status="success"}[1m]))
+
+      - record: node:memory_available:ratio
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
+
+  - name: caption-app-health
+    rules:
+      - alert: CaptionAppDown
+        expr: up{job="python_app"} == 0
+        for: 5s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Captioning app is down"
+          description: "Prometheus cannot scrape {{ $labels.instance }} (metrics endpoint unreachable for more than 5s)."
+
+      # The app can be up while the model is still loading.
+      - alert: CaptionModelNotLoaded
+        expr: caption_model_loaded == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Captioning model is not loaded"
+          description: "The app is reachable but the BLIP model is not ready to serve requests."
+
+      - alert: CaptionErrors
+        expr: sum by (stage) (increase(caption_errors_total[1m])) > 0
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Captioning errors in stage {{ $labels.stage }}"
+          description: "{{ $value | printf \"%.0f\" }} error(s) in the last minute during {{ $labels.stage }}."
+
+  - name: caption-app-latency
+    rules:
+      # Normal p95 is about 2 s per image on this laptop's CPU.
+      - alert: HighInferenceLatency
+        expr: caption:inference_seconds:p95_1m > 4
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 inference latency above 4s ({{ $labels.mode }} mode)"
+          description: "p95 latency is {{ $value | printf \"%.2f\" }}s, about 2x the normal ~2s."
+
+      - alert: HighInferenceLatency
+        expr: caption:inference_seconds:p95_1m > 8
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "p95 inference latency above 8s ({{ $labels.mode }} mode)"
+          description: "p95 latency is {{ $value | printf \"%.2f\" }}s; the CPU is heavily overloaded."
+
+  - name: node-resources
+    rules:
+      
+      - alert: CPUMoreThan200Percent
+        expr: cpu_util{mode="user"} > 2
+        for: 5s
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU usage above 200% (user mode)"
+          description: "{{ $value | printf \"%.1f\" }} CPU cores busy in user mode."
+
+      - alert: LowMemory
+        expr: node:memory_available:ratio < 0.10
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Less than 10% RAM available"
+          description: "Only {{ $value | humanizePercentage }} of memory is available."

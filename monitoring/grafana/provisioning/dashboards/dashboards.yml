@@ -1,0 +1,10 @@
+# Loads every dashboard JSON from monitoring/grafana/dashboards/ at startup.
+apiVersion: 1
+
+providers:
+  - name: caption-app
+    folder: ""
+    type: file
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

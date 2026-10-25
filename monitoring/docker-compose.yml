@@ -1,0 +1,75 @@
+# Monitoring stack:  cd monitoring && docker compose up -d
+# The Streamlit app runs on the host (streamlit run app/main.py).
+# network_mode: host lets every container reach the app at localhost:18000.
+# Ports: node_exporter 9100, Prometheus 9090, Alertmanager 9093,
+#        Grafana 3000, alert receiver 5001.
+
+services:
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    container_name: node-exporter
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - /:/host:ro,rslave
+    command:
+      - --path.rootfs=/host   # report the laptop's CPU/RAM/disks, not the container's
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: prometheus
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-lifecycle   # allows: curl -X POST localhost:9090/-/reload
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    container_name: alertmanager
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager:/etc/alertmanager:ro
+      - alertmanager-data:/alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+
+  alert-receiver:
+    image: python:3.12-slim
+    container_name: alert-receiver
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ../tools/alert_receiver.py:/app/alert_receiver.py:ro
+    command: ["python", "/app/alert_receiver.py"]
+
+  grafana:
+    image: grafana/grafana:12.0.2
+    container_name: grafana
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_USERS_DEFAULT_THEME=light
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  prometheus-data:
+  alertmanager-data:
+  grafana-data:

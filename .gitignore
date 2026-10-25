@@ -1,0 +1,18 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Model cache
+.cache/
+models/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Video is shared via Google Drive
+*.mp4
+*.mkv
+*.webm
